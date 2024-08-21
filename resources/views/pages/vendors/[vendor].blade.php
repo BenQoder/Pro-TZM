@@ -20,20 +20,16 @@ new class extends Component {
     public function with(): array
     {
         return [
-            'productsCategories' => $this->vendor->productsCategories,
+            'productsCategories' => $this->vendor->productsCategories()
+                ->whereHas('products')
+                ->get(),
             'productGroups' => $this->vendor->productGroups()
                 ->withCount(["products", "addonsGroups" => function($query) {
                     $query->whereHas("addons");
                 }])
-                ->with(['products' => function($query) {
-                    $query->when($this->category,  function ($query) {
+                ->when($this->category != null, function($query) {
+                    return $query->whereHas('products', function($query) {
                         $query->where('products_category_id', $this->category->id);
-                    })
-                    ->orderBy("price", "asc")->limit(1);
-                }])
-                ->when($this->category, function($query, $category) {
-                    return $query->whereHas('products', function($query) use ($category) {
-                        $query->where('products_category_id', $category->id);
                     });
                 })
                 ->get(),
