@@ -25,16 +25,18 @@ return new class extends Migration
         Schema::create('product_addons', function (Blueprint $table) {
             $table->id()->startingValue(1000);
             $table->foreignIdFor(Vendor::class)->constrained();
-            $table->foreignIdFor(
-                ProductsGroup::class,
-            )->constrained();
+            $table->foreignIdFor(ProductsGroup::class)->constrained();
             $table->foreignIdFor(ProductAddonsGroup::class)->constrained();
+            $table->integer('min')->default(0);
+            $table->integer('max')->default(0);
         });
 
         Schema::create('product_addons_group_product', function (Blueprint $table) {
             $table->id()->startingValue(1000);
             $table->foreignIdFor(ProductAddonsGroup::class)->constrained();
             $table->foreignIdFor(Product::class)->constrained();
+            $table->integer('min')->default(0);
+            $table->integer('max')->default(0);
         });
     }
 
@@ -45,5 +47,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('product_addons_groups');
         Schema::dropIfExists('product_addons');
+        Schema::dropIfExists('product_addons_group_product');
     }
 };

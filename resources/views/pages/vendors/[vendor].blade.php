@@ -19,14 +19,22 @@ new class extends Component {
 
     public function with(): array
     {
+
         return [
             'productsCategories' => $this->vendor->productsCategories()
                 ->whereHas('products')
+                ->whereHas('products', function($query) {
+                    $query->whereHas('groups');
+                })
                 ->get(),
             'productGroups' => $this->vendor->productGroups()
                 ->withCount(["products", "addonsGroups" => function($query) {
                     $query->whereHas("addons");
                 }])
+                ->whereHas('products', function($query) {
+                    $query->whereHas('groups')
+                    ->whereNotNull("products_category_id");
+                })
                 ->when($this->category != null, function($query) {
                     return $query->whereHas('products', function($query) {
                         $query->where('products_category_id', $this->category->id);
